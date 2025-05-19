@@ -35,13 +35,17 @@ def main():
 
     elapsed_time = time.time() - start_time
 
-    if result:
-        print("\nTìm được lời giải! Kết quả:")
-        print_grid(result)
-        write_output_file(result, output_file)
-        print(f"\nĐã ghi kết quả vào: {output_file}")
+    if elapsed_time > 160:
+        print("\n[!] Thời gian chạy vượt quá 100 giây, không tìm được lời giải trong giới hạn thời gian.")
+        print("Vui lòng thử phương pháp khác hoặc giảm kích thước bài toán.")
     else:
-        print("Không tìm được lời giải.")
+        if result:
+            print("\nTìm được lời giải! Kết quả:")
+            print_grid(result)
+            write_output_file(result, output_file)
+            print(f"\nĐã ghi kết quả vào: {output_file}")
+        else:
+            print("Không tìm được lời giải.")
 
     print(f"Thời gian chạy: {elapsed_time:.4f} giây")
 

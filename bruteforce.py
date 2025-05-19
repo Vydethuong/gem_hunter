@@ -1,6 +1,5 @@
 import time
 from multiprocessing import Pool, cpu_count
-from itertools import islice
 from pysat.formula import CNF
 
 def bits_from_int(value, length):
@@ -38,11 +37,11 @@ def brute_force_worker(args):
                     if isinstance(cell, int):
                         row_res.append(cell)
                     else:
-                        v = (i * cols + j + 1)
+                        v = i * cols + j + 1
                         if v in assignment:
                             row_res.append('T' if assignment[v] else 'G')
                         else:
-                            row_res.append('T')  
+                            row_res.append('T')
                 result.append(row_res)
             return result
     return None
@@ -53,13 +52,12 @@ def brute_force_parallel(grid, cnf, timeout=150):
     vars_in_cnf = set(abs(lit) for clause in cnf.clauses for lit in clause)
 
     variable_map = {}
-    var_id = 1
     for i in range(rows):
         for j in range(cols):
             if not isinstance(grid[i][j], int):
                 v = i * cols + j + 1
                 if v in vars_in_cnf:
-                    variable_map[(i,j)] = v
+                    variable_map[(i, j)] = v
 
     variables = list(variable_map.values())
     cells = list(variable_map.keys())

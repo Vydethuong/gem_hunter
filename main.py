@@ -1,7 +1,7 @@
 import time
 from utils import read_input_file, write_output_file, print_grid
 from solver_pysat import solve_with_pysat, gen_cnf_from_grid
-from bruteforce import solve_bruteforce
+from bruteforce import brute_force_parallel
 from backtracking import solve_backtracking
 
 def main():
@@ -22,10 +22,10 @@ def main():
 
     if method == '1':
         print("\n[+] Đang giải bằng PySAT...")
-        result = solve_with_pysat(grid)
+        result = solve_with_pysat(grid,cnf)
     elif method == '2':
         print("\n[+] Đang giải bằng Brute-force...")
-        result = solve_bruteforce(grid, cnf)  
+        result = brute_force_parallel(grid, cnf, timeout=300) 
     elif method == '3':
         print("\n[+] Đang giải bằng Backtracking...")
         result = solve_backtracking(grid, cnf)  

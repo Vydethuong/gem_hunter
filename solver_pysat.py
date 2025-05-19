@@ -25,10 +25,12 @@ def gen_cnf_from_grid(grid):
                 neigh = list(neighbors(i, j, rows, cols))
                 vars_ = [varnum(x, y, cols) for (x, y) in neigh]
 
+                # At least `cell` neighbors are True
                 for combo in combinations(vars_, len(vars_) - cell + 1):
                     clause = tuple(sorted(combo))
                     clause_set.add(clause)
 
+                # At most `cell` neighbors are True
                 for combo in combinations(vars_, cell + 1):
                     clause = tuple(sorted([-v for v in combo]))
                     clause_set.add(clause)
@@ -38,28 +40,23 @@ def gen_cnf_from_grid(grid):
         cnf.append(list(clause))
     return cnf
 
-def solve_with_pysat(grid):
+def solve_with_pysat(grid, cnf):  
     rows, cols = len(grid), len(grid[0])
-    cnf = gen_cnf_from_grid(grid)
     
-    solver = Minisat22()
-    solver.append_formula(cnf.clauses)
+    with Minisat22(bootstrap_with=cnf.clauses) as solver:
+        if solver.solve():
+            model_set = set(solver.get_model())
+            result = [
+                [cell if isinstance(cell, int) else '' for cell in row]
+                for row in grid
+            ]
 
-    if solver.solve():
-        model = solver.get_model()
-        model_set = set(model)  
+            for i in range(rows):
+                for j in range(cols):
+                    if not isinstance(grid[i][j], int):
+                        v = varnum(i, j, cols)
+                        result[i][j] = 'T' if v in model_set else 'G'
 
-        result = [[cell if isinstance(cell, int) else '' for cell in row] for row in grid]
-
-        unknowns = [(i, j) for i in range(rows) for j in range(cols) if not isinstance(grid[i][j], int)]
-        var_map = { (i,j): varnum(i,j,cols) for (i,j) in unknowns }
-
-        for (i, j) in unknowns:
-            v = var_map[(i,j)]
-            result[i][j] = 'T' if v in model_set else 'G'
-
-        solver.delete()
-        return result
-    else:
-        solver.delete()
-        return None
+            return result
+        else:
+            return None
